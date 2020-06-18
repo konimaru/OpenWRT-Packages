@@ -6,9 +6,14 @@ USE_PROCD=1
 
 BIN="lted-run"
 APN=$(uci -q get onion.@onion[0].apn)
+IFN=$(uci -q get network.lte.ifname)
 
 start_service() {
     [ "$APN" != "" ] && {
+        # do lted-run stuff locally
+        ifconfig $IFN down
+        echo "Y" > /sys/class/net/$IFN/qmi/raw_ip
+   
         procd_open_instance
         procd_set_param command $BIN $APN
         procd_set_param respawn  # respawn the service if it exits
